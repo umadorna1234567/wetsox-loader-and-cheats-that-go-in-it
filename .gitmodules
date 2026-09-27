@@ -1,0 +1,12 @@
+[submodule "games/farcry5/third_party/imgui"]
+	path = games/farcry5/third_party/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "games/farcry5/third_party/minhook"]
+	path = games/farcry5/third_party/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "far cry 5 mod menu/third_party/imgui"]
+	path = far cry 5 mod menu/third_party/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "far cry 5 mod menu/third_party/minhook"]
+	path = far cry 5 mod menu/third_party/minhook
+	url = https://github.com/TsudaKageyu/minhook.git

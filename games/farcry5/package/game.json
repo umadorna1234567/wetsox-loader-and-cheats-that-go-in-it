@@ -1,0 +1,217 @@
+{
+  "formatVersion": 1,
+  "id": "farcry5",
+  "name": "Far Cry 5",
+  "subtitle": "Hope County, Montana",
+  "backend": "farcry5",
+  "module": "WetsoxFC5.dll",
+  "artwork": "cover.jpg",
+  "sections": [
+    {
+      "name": "Aimbot",
+      "icon": "aim",
+      "controls": [
+        {
+          "key": "aim",
+          "label": "Enable aimbot",
+          "defaultValue": false
+        },
+        {
+          "key": "aimKey",
+          "label": "Aim key",
+          "defaultValue": "RMB",
+          "type": "keybind"
+        },
+        {
+          "key": "showFov",
+          "label": "Show aim FOV",
+          "defaultValue": false
+        },
+        {
+          "key": "aimEnemies",
+          "label": "Cult / Blessed humans",
+          "defaultValue": true
+        },
+        {
+          "key": "aimHumans",
+          "label": "Other humans",
+          "defaultValue": false
+        },
+        {
+          "key": "aimAnimals",
+          "label": "Animals",
+          "defaultValue": false
+        },
+        {
+          "key": "sticky",
+          "label": "Sticky aim",
+          "defaultValue": true
+        },
+        {
+          "key": "bone",
+          "label": "Hit location",
+          "defaultValue": "Head",
+          "type": "choice",
+          "options": [
+            "Head",
+            "Chest",
+            "Abdomen",
+            "Pelvis"
+          ]
+        },
+        {
+          "key": "fov",
+          "label": "Aim FOV diameter",
+          "defaultValue": 10,
+          "type": "slider",
+          "min": 0.1,
+          "max": 180,
+          "step": 0.1,
+          "unit": "\u00b0"
+        },
+        {
+          "key": "smooth",
+          "label": "Smoothing",
+          "defaultValue": 0,
+          "type": "slider",
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "unit": "s"
+        },
+        {
+          "key": "travel",
+          "label": "Projectile travel time",
+          "defaultValue": true
+        },
+        {
+          "key": "prediction",
+          "label": "Motion prediction",
+          "defaultValue": true
+        },
+        {
+          "key": "drop",
+          "label": "Bullet drop",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "name": "Visuals",
+      "icon": "eye",
+      "controls": [
+        {
+          "key": "esp",
+          "label": "Enable ESP",
+          "defaultValue": false
+        },
+        {
+          "key": "allHumans",
+          "label": "All humans",
+          "defaultValue": true
+        },
+        {
+          "key": "espEnemies",
+          "label": "Cult / Blessed humans",
+          "defaultValue": true
+        },
+        {
+          "key": "espAnimals",
+          "label": "Animals",
+          "defaultValue": false
+        },
+        {
+          "key": "boneEsp",
+          "label": "Bone ESP",
+          "defaultValue": false
+        },
+        {
+          "key": "boxEsp",
+          "label": "Box ESP",
+          "defaultValue": true
+        },
+        {
+          "key": "espOutline",
+          "label": "Enable ESP outline",
+          "defaultValue": true
+        },
+        {
+          "key": "enemyColor",
+          "label": "Cult / Blessed color",
+          "defaultValue": "#ff5050",
+          "type": "color"
+        },
+        {
+          "key": "humanColor",
+          "label": "Other human color",
+          "defaultValue": "#50b4ff",
+          "type": "color"
+        },
+        {
+          "key": "animalColor",
+          "label": "Animal color",
+          "defaultValue": "#ffbe3c",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "name": "Weapons",
+      "icon": "weapon",
+      "controls": [
+        {
+          "key": "ammo",
+          "label": "Unlimited reserve ammunition",
+          "defaultValue": false
+        },
+        {
+          "key": "reload",
+          "label": "No reload",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "name": "Camera",
+      "icon": "eye",
+      "controls": [
+        {
+          "key": "playerFov",
+          "label": "Override on-foot camera FOV",
+          "defaultValue": false
+        },
+        {
+          "key": "playerDegrees",
+          "label": "On-foot camera FOV",
+          "defaultValue": 90,
+          "type": "slider",
+          "min": 40,
+          "max": 140,
+          "step": 1,
+          "unit": "\u00b0"
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "icon": "world",
+      "controls": [
+        {
+          "key": "vehicleFov",
+          "label": "Override vehicle camera FOV",
+          "defaultValue": false
+        },
+        {
+          "key": "vehicleDegrees",
+          "label": "Vehicle camera FOV",
+          "defaultValue": 90,
+          "type": "slider",
+          "min": 40,
+          "max": 140,
+          "step": 1,
+          "unit": "\u00b0"
+        }
+      ]
+    }
+  ]
+}

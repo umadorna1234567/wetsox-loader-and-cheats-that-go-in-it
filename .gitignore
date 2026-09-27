@@ -1,0 +1,10 @@
+/build*/
+/out/
+/nexus stuff/
+/.qt/
+/.venv/
+*.user
+*.user.*
+/tools/qt/
+/tools/aqt/
+*.log
