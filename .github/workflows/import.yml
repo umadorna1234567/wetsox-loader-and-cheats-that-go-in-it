@@ -1,0 +1,50 @@
+name: Import staged source
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .upload/part*.txt | base64 -d > /tmp/wetsox-source.tar.gz
+          tar -xzf /tmp/wetsox-source.tar.gz
+          rm -f .upload-submodules.json
+          rm -rf .upload
+
+      - name: Restore pinned dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          git submodule add https://github.com/ocornut/imgui.git "games/farcry5/third_party/imgui"
+          git -C "games/farcry5/third_party/imgui" checkout f5befd2d29e66809cd1110a152e375a7f1981f06
+          git submodule add https://github.com/TsudaKageyu/minhook.git "games/farcry5/third_party/minhook"
+          git -C "games/farcry5/third_party/minhook" checkout c3fcafdc10146beb5919319d0683e44e3c30d537
+          git submodule add https://github.com/ocornut/imgui.git "far cry 5 mod menu/third_party/imgui"
+          git -C "far cry 5 mod menu/third_party/imgui" checkout f5befd2d29e66809cd1110a152e375a7f1981f06
+          git submodule add https://github.com/TsudaKageyu/minhook.git "far cry 5 mod menu/third_party/minhook"
+          git -C "far cry 5 mod menu/third_party/minhook" checkout c3fcafdc10146beb5919319d0683e44e3c30d537
+
+      - name: Commit imported project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/import.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import Wetsox loader and game modules"
+          git push
