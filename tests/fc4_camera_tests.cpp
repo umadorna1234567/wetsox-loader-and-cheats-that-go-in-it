@@ -24,5 +24,13 @@ int main() {
     correction=fc4::compensateCamera(look,rendered,rendered);
     check(correction&&fc5::length(*correction-look)<1e-6,"Already aligned rendered view needs no look correction");
     check(!fc4::compensateCamera(look,{},look),"Reject invalid camera direction");
+    for(float aspect:{4.f/3,16.f/9,21.f/9})for(float zoom:{1.f,2.f,4.f,8.f}) {
+        std::array<float,16> projection{zoom/aspect,0,0,0, 0,0,1,1, 0,zoom,0,0, 0,0,-.1f,0};
+        auto camera=fc4::cameraPose(projection);
+        const double tilt=4*std::numbers::pi/180;
+        check(camera&&fc4::aimCameraAligned({std::sin(tilt),std::cos(tilt),0},camera->forward),"Camera bob/recoil remains eligible across aspect ratios and scope zoom");
+        check(camera&&!fc4::aimCameraAligned({1,0,0},camera->forward),"Reject unrelated camera orientations");
+    }
+    check(!fc4::aimCameraAligned({}, {0,1,0}),"Reject invalid aim direction");
     return ok?0:1;
 }

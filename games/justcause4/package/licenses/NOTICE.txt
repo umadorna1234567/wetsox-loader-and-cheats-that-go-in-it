@@ -1,0 +1,1 @@
+Wetsox JC4 adapts gameplay code from the supplied Solis Menu source. Engine structures and rendering support derive from Aaron Kirkham's JC4 Console Thingy. FW1FontWrapper by Erik Rufelt. Hook installation uses MinHook by Tsuda Kageyu. The original proxy DLL and menu are not used. See the accompanying license and provenance files.

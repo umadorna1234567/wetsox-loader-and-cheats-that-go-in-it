@@ -1,0 +1,14 @@
+FW1FontWrapper v1.1, October 2011, by Erik Rufelt.
+
+The vendored source header identifies the author and version but omits a
+standalone license. FW1FontWrapper.txt supplies the standard MIT license text
+with the published author/year notice; it is a reconstructed notice, not a
+verbatim recovered CodePlex license page.
+
+Original license URL: http://fw1.codeplex.com/license (retired CodePlex site).
+NuGet package metadata records the original license URL and copyright:
+https://www.nuget.org/packages/FW1FontWrapper
+A published use of the library explicitly records its MIT licensing in
+Appendix C (page labelled 79):
+https://objects.lib.uidaho.edu/etd/pdf/Mathijssen_idaho_0089N_10460.pdf
+Source mirror: https://github.com/gamelaster/FW1FontWrapper

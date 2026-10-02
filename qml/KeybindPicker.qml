@@ -24,7 +24,7 @@ Button {
     }
     contentItem: Text {
         text: root.text; color: root.listening ? theme.accent : theme.text
-        font.family: theme.family; font.pixelSize: theme.fontSize
+        font.family: theme.family; font.weight: theme.values.fontWeight; font.letterSpacing: theme.values.letterSpacing; font.pixelSize: theme.fontSize
         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
@@ -36,6 +36,6 @@ Button {
     ToolTip.visible: listening || hovered
     ToolTip.delay: listening ? 0 : 500
     ToolTip.timeout: -1
-    ToolTip.text: listening ? "Press a key or mouse button. Esc cancels; Backspace clears." : "Click to record a key or mouse button"
+    ToolTip.text: listening ? "Press a key, mouse button, or controller input. Esc cancels; Backspace clears." : "Click to record a key, mouse button, or controller input"
     Accessible.name: "Key binding: " + (binding || "unbound")
 }

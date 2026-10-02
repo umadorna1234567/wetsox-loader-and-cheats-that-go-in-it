@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstdint>
 #include "fc5/runtime.hpp"
+#include "fc5/build_compatibility.hpp"
 
 namespace {
 struct Handle {
@@ -83,29 +84,43 @@ struct Status { std::uint32_t size{sizeof(Status)},running{},initialized{},visib
 
 int wmain(int argc,wchar_t** argv) try {
     std::wstring game=L"farcry5";
-    bool test=false,stop=false,status=false,runtimeStatus=false;DWORD pid{};std::filesystem::path dll;
+    bool test=false,stop=false,status=false,runtimeStatus=false;DWORD pid{};std::filesystem::path dll,checkBuild;
     for(int i=1;i<argc;++i) {
         std::wstring arg=argv[i];
         if(arg==L"--test-host") test=true;
         else if(arg==L"--game"&&i+1<argc) game=argv[++i];
+        else if(arg==L"--check-build"&&i+1<argc) checkBuild=argv[++i];
         else if(arg==L"--stop") stop=true;
         else if(arg==L"--status") status=true;
         else if(arg==L"--runtime-status") runtimeStatus=true;
         else if(arg==L"--pid"&&i+1<argc) pid=std::stoul(argv[++i]);
         else if(arg==L"--help") {
-            std::cout<<"WetsoxGameLoader [--stop | --status] [--pid N] [--test-host] [DLL path]\n";return 0;
+            std::cout<<"WetsoxGameLoader [--game farcry4|farcry5|justcause4|killingfloor2] [--stop | --status | --runtime-status] [--pid N] [DLL path]\nRead-only engine check: --game farcry4|farcry5 --check-build <engine DLL path>\n";return 0;
         } else if(arg.starts_with(L"--")||!dll.empty()) throw std::runtime_error("Invalid command. Use --help.");
         else dll=arg;
     }
-    if(game!=L"farcry5"&&game!=L"farcry4") throw std::runtime_error("Unsupported game backend.");
-    const bool fc4=game==L"farcry4";
+    if(game!=L"farcry5"&&game!=L"farcry4"&&game!=L"justcause4"&&game!=L"killingfloor2") throw std::runtime_error("Unsupported game backend.");
+    const bool fc4=game==L"farcry4",jc4=game==L"justcause4",kf2=game==L"killingfloor2";
+    const auto& engineBuild=fc4?wetsox::compatibility::farCry4:wetsox::compatibility::farCry5;
+    if(!checkBuild.empty()) {
+        if(jc4||kf2||test||stop||status||runtimeStatus||pid||!dll.empty())throw std::runtime_error("Use --check-build only with --game farcry4 or farcry5 and an engine file.");
+        const auto result=wetsox::compatibility::checkFile(checkBuild,engineBuild.sha256);
+        std::cout<<wetsox::compatibility::describe(engineBuild,result)<<'\n';return result.canAttempt()?0:2;
+    }
     if(static_cast<int>(stop)+status+runtimeStatus>1) throw std::runtime_error("Choose --stop, --status, or --runtime-status.");
-    if(dll.empty()) {wchar_t self[32768]{};GetModuleFileNameW(nullptr,self,32768);dll=std::filesystem::path(self).parent_path()/(fc4?L"cheats/farcry4/WetsoxFC4.dll":FC5_DLL_FILENAME);}
+    if(dll.empty()) {wchar_t self[32768]{};GetModuleFileNameW(nullptr,self,32768);auto root=std::filesystem::path(self).parent_path();if(root.filename()==L"backend")root=root.parent_path();dll=root/(kf2?L"cheats/killingfloor2/WetsoxKF2.dll":jc4?L"cheats/justcause4/WetsoxJC4.dll":fc4?L"cheats/farcry4/WetsoxFC4.dll":FC5_DLL_FILENAME);}
     dll=std::filesystem::canonical(dll);
     Image image{LoadLibraryExW(dll.c_str(),nullptr,DONT_RESOLVE_DLL_REFERENCES)};
     if(!image.value) fail("Cannot inspect DLL exports");
-    auto startOffset=image.offset(fc4?"FC4OverlayStart":"FC5OverlayStart"),stopOffset=image.offset(fc4?"FC4OverlayStop":"FC5OverlayStop"),statusOffset=image.offset(fc4?"FC4OverlayStatus":"FC5OverlayStatus");
-    pid=findProcess(test?L"NexusFC5TestHost.exe":fc4?L"FarCry4.exe":L"FarCry5.exe",pid);
+    auto startOffset=image.offset(kf2?"KF2OverlayStart":jc4?"JC4OverlayStart":fc4?"FC4OverlayStart":"FC5OverlayStart"),stopOffset=image.offset(kf2?"KF2OverlayStop":jc4?"JC4OverlayStop":fc4?"FC4OverlayStop":"FC5OverlayStop"),statusOffset=image.offset(kf2?"KF2OverlayStatus":jc4?"JC4OverlayStatus":fc4?"FC4OverlayStatus":"FC5OverlayStatus");
+    pid=findProcess(test?L"NexusFC5TestHost.exe":kf2?L"KFGame.exe":jc4?L"JustCause4.exe":fc4?L"FarCry4.exe":L"FarCry5.exe",pid);
+    if(!test&&!jc4&&!kf2&&!stop&&!status&&!runtimeStatus) {
+        const auto engine=module(pid,engineBuild.module);
+        if(!engine.base)throw std::runtime_error(std::string(engineBuild.game)+": engine is not loaded yet. Load a single-player save, then try again.");
+        const auto result=wetsox::compatibility::checkFile(engine.path,engineBuild.sha256);
+        if(!result.canAttempt())throw std::runtime_error(wetsox::compatibility::describe(engineBuild,result));
+        if(!result.supported())std::cout<<wetsox::compatibility::describe(engineBuild,result)<<'\n';
+    }
     if(module(pid,L"NexusFC5.dll").base||module(pid,L"NexusFC5_v2.dll").base||module(pid,L"NexusFC5_v3.dll").base||module(pid,L"NexusFC5_v4.dll").base||module(pid,L"NexusFC5_v5.dll").base) throw std::runtime_error("Restart Far Cry 5 before loading this update; the previous Nexus module is still in memory.");
     Handle process{OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ|SYNCHRONIZE,FALSE,pid)};
     if(!process.value) fail("Cannot open target process");
@@ -125,7 +140,7 @@ int wmain(int argc,wchar_t** argv) try {
     }
     if(runtimeStatus) {
         fc5::runtime::Status output;
-        auto offset=image.offset(fc4?"FC4RuntimeStatus":"FC5RuntimeStatus");
+        auto offset=image.offset(kf2?"KF2RuntimeStatus":jc4?"JC4RuntimeStatus":fc4?"FC4RuntimeStatus":"FC5RuntimeStatus");
         auto argument=copyToProcess(process.value,&output,sizeof(output));
         DWORD code=invoke(process.value,remote.base+offset,argument);
         SIZE_T read{};BOOL ok=ReadProcessMemory(process.value,argument,&output,sizeof(output),&read);
@@ -136,10 +151,10 @@ int wmain(int argc,wchar_t** argv) try {
                  <<" | Position: "<<output.localPosition[0]<<", "<<output.localPosition[1]<<", "<<output.localPosition[2]
                  <<" | Magazine hook: "<<output.magazineHook<<" | Magazine calls: "<<output.magazineCalls<<" | Preserved: "<<output.preservedRounds<<" | Clip: "<<output.magazine
                  <<" | Reserve hook: "<<output.unlimitedHook<<" | Reserve overrides: "<<output.unlimitedQueries<<" | Bone entities: "<<output.boneEntities
-                 <<" | Aim state: "<<output.aimState<<" | Aim writes: "<<output.aimWrites<<" | Alignment: "<<output.centerError
+                 <<" | Aim state: "<<output.aimState<<" | Aim writes: "<<output.aimWrites<<" | Alignment degrees: "<<output.centerError
                  <<" | Aim target: "<<std::hex<<output.aimTarget<<std::dec
                  <<" | Aim rejects physics/player/mounted/target/alignment/cover: "<<output.aimReasons[1]<<", "<<output.aimReasons[2]<<", "<<output.aimReasons[3]<<", "<<output.aimReasons[4]<<", "<<output.aimReasons[6]<<", "<<output.aimReasons[7]
-                 <<" | Last alignment rejection: "<<output.lastAlignmentFailure
+                 <<" | Last alignment rejection degrees: "<<output.lastAlignmentFailure
                  <<" | Cover obstruction/missing target: "<<output.coverObstructions<<", "<<output.coverMissingTarget
                  <<" | Last blocker/target: "<<std::hex<<output.lastBlocker<<"/"<<output.lastBlockedTarget<<std::dec
                  <<" | Visibility queries: "<<output.visibilityQueries<<" | Clear: "<<output.visibilityClear<<" | Blocked/unconfirmed: "<<output.visibilityBlocked
@@ -164,7 +179,7 @@ int wmain(int argc,wchar_t** argv) try {
                  <<" | Frames: "<<output.frames<<" | Resizes: "<<output.resizes<<'\n';return 0;
     }
     DWORD code=invoke(process.value,remote.base+(stop?stopOffset:startOffset),nullptr);
-    if(code==ERROR_REVISION_MISMATCH) throw std::runtime_error("Unsupported game engine build, or game is still loading. No features enabled.");
+    if(code==ERROR_REVISION_MISMATCH) throw std::runtime_error(kf2 ? "Killing Floor 2 bindings could not initialize. See WetsoxKF2.log in the pack folder." : jc4 ? "Just Cause 4 requires the verified Steam build 4110618. Its build or hook checks failed; a different build or another mod hook can cause this. See WetsoxJC4.log in the game pack folder for details. No features enabled." : "Runtime initialization failed. This game build may use different bindings. Restart the game, load a single-player save, and check for conflicting mods. No features enabled.");
     if(code) throw std::runtime_error("Wetsox module returned Windows error "+std::to_string(code));
     std::cout<<"PID="<<pid<<"\n";
     std::cout<<(stop?"Overlay stopped. DLL stays resident until target exit.\n":"Hooks installed. Wetsox owns the Qt menu. Use --status to verify rendered frames.\n");

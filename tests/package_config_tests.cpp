@@ -22,7 +22,32 @@ private slots:
   QVERIFY(games[0].toMap().value("artwork").toString().startsWith("file:"));
   QVERIFY(games[0].toMap().value("modulePath").toString().endsWith("/farcry5/WetsoxFC5.dll"));
   data["module"]="../WetsoxFC5.dll";put("game.json",QJsonDocument(data).toJson());QVERIFY(scanGamePackages(root.path()).isEmpty());
-  data["module"]="WetsoxFC5.dll";put("game.json",QJsonDocument(data).toJson());QFile::remove(folder+"/cover.jpg");QVERIFY(scanGamePackages(root.path()).isEmpty());
+  data["module"]="WetsoxFC5.dll";put("game.json",QJsonDocument(data).toJson());QFile::remove(folder+"/cover.jpg");QCOMPARE(scanGamePackages(root.path()).size(),1);
+  QDir().mkpath(root.filePath("download/wrapper"));
+  QVERIFY(QDir().rename(folder,root.filePath("download/wrapper/farcry5")));
+  games=scanGamePackages(root.path());QCOMPARE(games.size(),1);
+  QVERIFY(games[0].toMap()["ready"].toBool());
+  QVERIFY(games[0].toMap()["modulePath"].toString().contains("download/wrapper/farcry5/"));
+ }
+ void nestedPacksAndBackendIdentity() {
+  QTemporaryDir root;
+  auto make=[&](const QString& location,const QString& id,const QString& backend){
+   const auto folder=root.filePath(location);QDir().mkpath(folder);
+   QFile module(folder+"/module.dll");QVERIFY(module.open(QIODevice::WriteOnly));module.write("fixture");module.close();
+   QFile manifest(folder+"/game.json");QVERIFY(manifest.open(QIODevice::WriteOnly));
+   manifest.write(QJsonDocument(QJsonObject{{"formatVersion",1},{"id",id},{"name",id},{"backend",backend},{"module","module.dll"},
+    {"artwork","missing.jpg"},{"sections",QJsonArray{QJsonObject{{"name","Player"},{"controls",QJsonArray{QJsonObject{{"key","test"}}}}}}}}).toJson());
+  };
+  for(const auto& id:{QString("farcry4"),QString("farcry5"),QString("justcause4")})make("download-"+id+"/wrapper/"+id,id,id);
+  make("bad-direct","farcry4","farcry5");
+  auto games=scanGamePackages(root.path());QCOMPARE(games.size(),3);
+  for(const auto& entry:games){const auto pack=entry.toMap();QVERIFY(pack["installed"].toBool());QVERIFY(pack["ready"].toBool());QCOMPARE(pack["id"],pack["backend"]);QVERIFY(pack["artwork"].toString().isEmpty());}
+  make("custom-pack","custom-game","farcry4");
+  games=scanGamePackages(root.path());QCOMPARE(games.size(),4);
+  for(const auto& entry:games)if(entry.toMap()["id"]=="custom-game")QVERIFY(!entry.toMap()["ready"].toBool());
+  make("farcry4","farcry4","farcry4");
+  games=scanGamePackages(root.path());QCOMPARE(games.size(),4);
+  for(const auto& entry:games)if(entry.toMap()["id"]=="farcry4")QVERIFY(entry.toMap()["modulePath"].toString().endsWith("/farcry4/module.dll")&&!entry.toMap()["modulePath"].toString().contains("wrapper"));
  }
  void liveDiscovery() {
   QTemporaryDir root;

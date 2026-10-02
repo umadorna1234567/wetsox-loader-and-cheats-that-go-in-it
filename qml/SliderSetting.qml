@@ -10,14 +10,15 @@ ColumnLayout {
     property real from: 0
     property real to: 100
     property real stepSize: 1
+    property bool percentage: setting.toLowerCase().indexOf("opacity") >= 0 || ["blurStrength","glowStrength","borderOpacity","shadowStrength","shadowSoftness","gradientIntensity","cursorGlow","soundVolume","uiScale"].indexOf(setting) >= 0
     property string suffix: " px"
     spacing: 3
     RowLayout {
         Layout.fillWidth: true
-        Text { text: root.label; color: theme.text; font.family: theme.family; font.pixelSize: theme.fontSize; Layout.fillWidth: true }
+        Text { text: root.label; color: theme.text; font.family: theme.family; font.weight: theme.values.fontWeight; font.letterSpacing: theme.values.letterSpacing; font.pixelSize: theme.fontSize; Layout.fillWidth: true }
         Text {
-            text: root.stepSize < 1 ? Math.round(slider.value * 100) + "%" : Math.round(slider.value) + root.suffix
-            color: theme.muted; font.family: theme.family; font.pixelSize: theme.fontSize - 1
+            text: root.percentage ? Math.round(slider.value * 100) + "%" : Number(slider.value).toFixed(root.stepSize < 1 ? 2 : 0) + root.suffix
+            color: theme.muted; font.family: theme.family; font.weight: theme.values.fontWeight; font.letterSpacing: theme.values.letterSpacing; font.pixelSize: theme.fontSize - 1
         }
     }
     Slider {

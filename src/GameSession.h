@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QVariantMap>
 #include "fc5/session.hpp"
+#include "FeatureHotkeys.h"
 class GameSession : public QObject {
  Q_OBJECT
  QML_ELEMENT
@@ -25,10 +26,12 @@ public:
  Q_INVOKABLE void launch(const QString& game);
  Q_INVOKABLE void update(const QVariantMap& values, bool menuActive);
  Q_INVOKABLE void detach();
+ Q_INVOKABLE void action(const QString& key);
 signals:
  void changed();
  void ready(QString game);
 private:
+ friend class SessionTests;
  void poll();
  void release();
  bool busy_{},connected_{};
@@ -39,4 +42,7 @@ private:
  HANDLE mapping_{},mutex_{},process_{};
  nexus::Session* session_{};
  nexus::Session desired_;
+ std::array<wetsox::HotkeyRule,wetsox::featureKeys.size()> hotkeys_{};
+ std::array<wetsox::HotkeyState,wetsox::featureKeys.size()> hotkeyStates_{};
+ nexus::Session effectiveSettings();
 };

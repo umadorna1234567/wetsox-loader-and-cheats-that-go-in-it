@@ -29,7 +29,7 @@ if ($LASTEXITCODE -ne 0) { throw 'CMake configuration failed.' }
 & cmake --build $buildDir --parallel
 if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 # Keep the development executable launchable directly from Explorer, too.
-& "$QtPath\bin\windeployqt.exe" --no-translations --qmldir "$PSScriptRoot\qml" "$buildDir\Wetsox.exe"
+& "$QtPath\bin\windeployqt.exe" --no-translations --qmldir "$PSScriptRoot\qml" "$buildDir\backend\WetsoxApp.exe"
 if ($LASTEXITCODE -ne 0) { throw 'Development runtime deployment failed.' }
 $env:PATH = "$QtPath\bin;$env:PATH"
 $env:QT_PLUGIN_PATH = "$QtPath\plugins"
@@ -56,4 +56,25 @@ if (Test-Path -LiteralPath $oldNestedModule) {
     try { Remove-Item -LiteralPath $oldNestedModule -ErrorAction Stop }
     catch { Write-Warning 'The old NexusFC5.dll is still in use. Close Far Cry 5 and rebuild to remove it.' }
 }
+# Remove superseded flat-layout runtime copies only after a successful install.
+$runtimeRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'out\bin'))
+$backendRoot=Join-Path $runtimeRoot 'backend'
+foreach ($folder in @('generic','iconengines','imageformats','licenses','networkinformation','platforms','qml','qmltooling','tls')) {
+    $legacy=[IO.Path]::GetFullPath((Join-Path $runtimeRoot $folder))
+    if ([IO.Path]::GetDirectoryName($legacy) -ne $runtimeRoot) { throw 'Invalid runtime cleanup path' }
+    if ((Test-Path -LiteralPath (Join-Path $backendRoot $folder)) -and (Test-Path -LiteralPath $legacy)) { Remove-Item -LiteralPath $legacy -Recurse -Force }
+}
+foreach ($file in Get-ChildItem -LiteralPath $runtimeRoot -File) {
+    if ($file.Extension -eq '.dll' -or $file.Name -in @('WetsoxGameLoader.exe','vc_redist.x64.exe','qt.conf')) {
+        $destination=Join-Path $backendRoot $file.Name
+        if (-not (Test-Path -LiteralPath $destination)) { Copy-Item -LiteralPath $file.FullName -Destination $destination }
+        Remove-Item -LiteralPath $file.FullName -Force
+    }
+}
+New-Item -ItemType Directory -Path (Join-Path $runtimeRoot 'configs') -Force | Out-Null
+$oldSettings=Join-Path $runtimeRoot 'settings.json'
+$newSettings=Join-Path $runtimeRoot 'configs\settings.json'
+if ((Test-Path -LiteralPath $oldSettings) -and -not (Test-Path -LiteralPath $newSettings)) { Move-Item -LiteralPath $oldSettings -Destination $newSettings }
 if ($Run) { & "$PSScriptRoot\out\bin\Wetsox.exe" }
+
+exit 0

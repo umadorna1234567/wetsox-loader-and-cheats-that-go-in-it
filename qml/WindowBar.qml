@@ -11,14 +11,17 @@ Item {
     signal lightTheme()
     signal darkTheme()
     implicitHeight: 54
+    implicitWidth: bar.implicitWidth + 34
     MouseArea {
         anchors.fill: parent
         onPressed: root.window.startSystemMove()
-        onDoubleClicked: root.window.visibility === Window.Maximized ? root.window.showNormal() : root.window.showMaximized()
+        onDoubleClicked: if(theme.values.resizable) root.window.visibility === Window.Maximized ? root.window.showNormal() : root.window.showMaximized()
     }
     RowLayout {
+        id:bar
         anchors.fill: parent; anchors.leftMargin: 24; anchors.rightMargin: 10; spacing: 6
-        Text { text: root.label; color: theme.muted; font.family: theme.family; font.pixelSize: 10; font.letterSpacing: 1.8; Layout.fillWidth: true }
+        Text { text: root.label; color: theme.muted; font.family: theme.family; font.weight: theme.values.fontWeight; font.pixelSize: 10; font.letterSpacing: 1.8; Layout.fillWidth: true }
+        Text { visible: theme.values.showHints; text: theme.values.menuKey + " · menu"; color: theme.muted; font.family: theme.family; font.weight: theme.values.fontWeight; font.letterSpacing: theme.values.letterSpacing; font.pixelSize: 10 }
         Repeater {
             model: root.showThemeButtons ? ["sun", "moon"] : []
             Button {
@@ -36,6 +39,8 @@ Item {
             model: ["minimize", "maximize", "close"]
             Button {
                 required property string modelData
+                enabled: modelData !== "maximize" || theme.values.resizable
+                opacity: enabled ? 1 : 0.35
                 implicitWidth: 38; implicitHeight: 32; padding: 8; hoverEnabled: true
                 contentItem: Glyph { name: modelData; color: theme.muted }
                 background: Rectangle { radius: 7; color: parent.hovered ? (modelData === "close" ? "#803442" : theme.tint(theme.text, 0.08)) : "transparent" }

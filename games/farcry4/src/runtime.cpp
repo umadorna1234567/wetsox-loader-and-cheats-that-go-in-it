@@ -126,25 +126,8 @@ void readBones(std::uintptr_t object,Pawn& pawn,unsigned requestedBones=20) {
     }
     if(q(graphic+0xb0)!=buffer){pawn.boneMask=0;pawn.boundsPoints.clear();pawn.skeleton.clear();}
 }
-bool fingerprint(HMODULE engine) {
-    wchar_t filename[32768]{};
-    if(!GetModuleFileNameW(engine,filename,32768))return false;
-    std::ifstream input(std::filesystem::path(filename),std::ios::binary);
-    if(!input)return false;
-    BCRYPT_ALG_HANDLE algorithm{};BCRYPT_HASH_HANDLE hash{};
-    if(BCryptOpenAlgorithmProvider(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,0)<0)return false;
-    bool ok=BCryptCreateHash(algorithm,&hash,nullptr,0,nullptr,0,0)>=0;
-    std::array<char,65536> buffer{};
-    while(ok&&input) {
-        input.read(buffer.data(),buffer.size());auto count=input.gcount();
-        if(count)ok=BCryptHashData(hash,reinterpret_cast<PUCHAR>(buffer.data()),static_cast<ULONG>(count),0)>=0;
-    }
-    std::array<unsigned char,32> digest{};
-    ok=ok&&!input.bad()&&BCryptFinishHash(hash,digest.data(),static_cast<ULONG>(digest.size()),0)>=0;
-    if(hash)BCryptDestroyHash(hash);BCryptCloseAlgorithmProvider(algorithm,0);
-    constexpr unsigned char expected[]{0x73,0x04,0x07,0x8f,0xb5,0xbf,0xec,0x14,0x9c,0x93,0x80,0x4f,0x84,0x22,0x95,0xfa,0x8a,0x6f,0x99,0x13,0xe6,0xb2,0x80,0x52,0x3c,0x74,0x38,0x9a,0x42,0x72,0x80,0x3a};
-    return ok&&std::memcmp(expected,digest.data(),32)==0;
-}
+
+
 std::array<float,4> transform(const std::array<float,16>& m,const float* p) {
     std::array<float,4> clip{};
     for(int j=0;j<4;++j)clip[j]=p[0]*m[j]+p[1]*m[j+4]+p[2]*m[j+8]+m[j+12];
@@ -176,7 +159,6 @@ void sampleCamera() {
 bool start() {
     auto module=GetModuleHandleW(L"FC64.dll");
     if(!module){state.aimState=101;return false;}
-    if(!fingerprint(module)){state.aimState=102;state.lastCaller=GetLastError();return false;}
     base=reinterpret_cast<std::uintptr_t>(module);enabled=true;
     std::lock_guard lock(mutex);state.supported=1;state.magazineHook=1;state.unlimitedHook=1;return true;
 }
@@ -440,12 +422,10 @@ void aim(const AimSettings& settings,bool held,double dt) {
     auto world=[&](Vec3 v){return Vec3{v.x*root[0]+v.y*root[4]+v.z*root[8],v.x*root[1]+v.y*root[5]+v.z*root[9],v.x*root[2]+v.y*root[6]+v.z*root[10]};};
     Vec3 view=world(local),origin{eye[0],eye[1],eye[2]};
     if(!finite(view)||!finite(origin)||std::abs(length(view)-1)>.05){report(2);return;}
-    auto ahead=origin+view*50;float point[]{static_cast<float>(ahead.x),static_cast<float>(ahead.y),static_cast<float>(ahead.z)};
-    auto clip=transform(projection,point);
-    float error=clip[3]>.01f?std::hypot(clip[0]/clip[3],clip[1]/clip[3]):100.f;
-    if(!std::isfinite(error)||error>.05f){report(riding?3:6,0,error);return;}
     auto rendered=fc4::cameraPose(projection);
-    if(!rendered||length(rendered->eye-origin)>3) {report(6,0,error);return;}
+    if(!rendered||length(rendered->eye-origin)>3) {report(6,0,180);return;}
+    const float error=float(fc4::alignmentDegrees(view,rendered->forward).value_or(180));
+    if(!fc4::aimCameraAligned(view,rendered->forward)){report(riding?3:6,0,error);return;}
     const auto baseLook=view;
     view=rendered->forward;origin=rendered->eye;
     Shot shot;shot.muzzle=origin;

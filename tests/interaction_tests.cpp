@@ -4,6 +4,13 @@
 #include <qt_windows.h>
 #endif
 
+class SimulatedRecorder : public InputRecorder {
+public:
+    std::array<unsigned,8> states{};
+protected:
+    unsigned controllerState(unsigned index) const override { return states.at(index); }
+};
+
 class InteractionTests : public QObject
 {
     Q_OBJECT
@@ -49,6 +56,33 @@ private slots:
         QEvent deactivate(QEvent::WindowDeactivate);
         QCoreApplication::sendEvent(&target, &deactivate);
         QVERIFY(!recorder.listening());
+        QVERIFY(recorded.isEmpty());
+    }
+    void nativeControllerRecording() {
+        QWindow window;
+        SimulatedRecorder recorder;
+        recorder.setWindow(&window);
+        QSignalSpy recorded(&recorder, &InputRecorder::recorded);
+        // Slot 4 is the first native Sony device, beyond the four XInput slots.
+        recorder.states[4] = 1u << 16;
+        recorder.begin();
+        QTest::qWait(60);
+        QVERIFY(recorded.isEmpty()); // Held before recording is not a new press.
+        recorder.states[4] = 0;
+        QTest::qWait(60);
+        recorder.states[4] = 1u << 16;
+        QTRY_COMPARE(recorded.size(), 1);
+        QCOMPARE(recorded.takeFirst().at(0).toString(), QString("Pad LT"));
+        QVERIFY(!recorder.listening());
+        recorder.states[4] = 0;
+        recorder.begin();
+        recorder.states[7] = 1u << 12;
+        QTRY_COMPARE(recorded.size(), 1);
+        QCOMPARE(recorded.takeFirst().at(0).toString(), QString("Pad A"));
+        recorder.begin();
+        recorder.cancel();
+        recorder.states[7] = 1u << 13;
+        QTest::qWait(60);
         QVERIFY(recorded.isEmpty());
     }
     void actualWindowShape() {

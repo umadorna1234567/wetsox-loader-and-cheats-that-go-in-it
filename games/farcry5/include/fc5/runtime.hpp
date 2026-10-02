@@ -31,7 +31,7 @@ struct Status {
     float lastAlignmentFailure{};
     std::uint64_t coverObstructions{},coverMissingTarget{},lastBlocker{},lastBlockedTarget{};
 };
-// Requires MinHook to be initialized. Fingerprint-gated gameplay bindings.
+// Requires MinHook to be initialized. Build-specific gameplay bindings; fingerprints are advisory.
 bool start();
 void stop();
 void refresh();

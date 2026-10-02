@@ -1,0 +1,13 @@
+********* Start testing of ThemeTests *********
+Config: Using QtTest library 6.8.3, Qt 6.8.3 (x86_64-little_endian-llp64 shared (dynamic) release build; by MSVC 2022), windows 10
+PASS   : ThemeTests::initTestCase()
+FAIL!  : ThemeTests::modeSwitchPreservesCustomization() Compared values are not the same
+   Actual   (state.theme("loader").value(it.key())): QVariant(QStringList,)
+   Expected (it.value())                           : QVariant(QStringList,)
+C:\Users\Brandon\Desktop\Multi cheat - Copy\tests\theme_tests.cpp(37) : failure location
+PASS   : ThemeTests::sharedAndIndependentThemes()
+PASS   : ThemeTests::persistsAndReloads()
+PASS   : ThemeTests::importsExportsAndValidates()
+PASS   : ThemeTests::cleanupTestCase()
+Totals: 5 passed, 1 failed, 0 skipped, 0 blacklisted, 70ms
+********* Finished testing of ThemeTests *********

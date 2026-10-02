@@ -12,9 +12,10 @@ TextField {
     selectedTextColor: theme.background
     font.family: theme.family
     font.pixelSize: theme.fontSize
+    font.weight: theme.values.fontWeight; font.letterSpacing: theme.values.letterSpacing
     background: Rectangle {
-        color: theme.background
-        radius: Math.min(theme.radius, 10)
+        color: theme.surfaceColor("control")
+        radius: Math.min(theme.radius, height / 2)
         border.color: root.activeFocus ? theme.accent : theme.border
     }
 }

@@ -1,4 +1,5 @@
 #include "fc5/runtime.hpp"
+#include "fc5/camera.hpp"
 #include <MinHook.h>
 #include <bcrypt.h>
 #include <intrin.h>
@@ -132,25 +133,8 @@ void readBones(std::uintptr_t object,Pawn& pawn,unsigned requestedBones=20) {
     if(!read(graphic+0x2a0,afterWorld)||q(skeleton+0xa8)!=buffer) {pawn.boneMask=0;return;}
     for(unsigned i=0;i<16;++i)if(std::abs(afterWorld[i]-world[i])>.001f){pawn.boneMask=0;break;}
 }
-bool fingerprint(HMODULE engine) {
-    wchar_t filename[32768]{};
-    if(!GetModuleFileNameW(engine,filename,32768))return false;
-    std::ifstream input(std::filesystem::path(filename),std::ios::binary);
-    if(!input)return false;
-    BCRYPT_ALG_HANDLE algorithm{};BCRYPT_HASH_HANDLE hash{};
-    if(BCryptOpenAlgorithmProvider(&algorithm,BCRYPT_SHA256_ALGORITHM,nullptr,0)<0)return false;
-    bool ok=BCryptCreateHash(algorithm,&hash,nullptr,0,nullptr,0,0)>=0;
-    std::array<char,65536> buffer{};
-    while(ok&&input) {
-        input.read(buffer.data(),buffer.size());auto count=input.gcount();
-        if(count)ok=BCryptHashData(hash,reinterpret_cast<PUCHAR>(buffer.data()),static_cast<ULONG>(count),0)>=0;
-    }
-    std::array<unsigned char,32> digest{};
-    ok=ok&&!input.bad()&&BCryptFinishHash(hash,digest.data(),static_cast<ULONG>(digest.size()),0)>=0;
-    if(hash)BCryptDestroyHash(hash);BCryptCloseAlgorithmProvider(algorithm,0);
-    constexpr unsigned char expected[]{0x00,0x83,0x3f,0xae,0x4d,0x5d,0x70,0x21,0x31,0x58,0xa1,0x46,0xca,0x98,0x43,0x9b,0x28,0xa8,0xe9,0x62,0xb9,0x34,0x88,0x5e,0xcc,0xcd,0x90,0x62,0x04,0x88,0x0a,0xf2};
-    return ok&&std::memcmp(expected,digest.data(),32)==0;
-}
+
+
 std::array<float,4> transform(const std::array<float,16>& m,const float* p) {
     std::array<float,4> clip{};
     for(int j=0;j<4;++j)clip[j]=p[0]*m[j]+p[1]*m[j+4]+p[2]*m[j+8]+m[j+12];
@@ -206,7 +190,7 @@ std::uintptr_t __fastcall observeLaunch(void* self,void* pawn,const float* origi
 }
 bool start() {
     auto module=GetModuleHandleW(L"FC_m64.dll");
-    if(!module||!fingerprint(module))return false;
+    if(!module)return false;
     base=reinterpret_cast<std::uintptr_t>(module);
     if(!installed) {
         if(MH_CreateHook(reinterpret_cast<void*>(base+0x3a3160),reinterpret_cast<void*>(capture),reinterpret_cast<void**>(&original))!=MH_OK)return false;
@@ -449,10 +433,13 @@ void aim(const AimSettings& settings,bool held,double dt) {
     auto world=[&](Vec3 v){return Vec3{v.x*root[0]+v.y*root[4]+v.z*root[8],v.x*root[1]+v.y*root[5]+v.z*root[9],v.x*root[2]+v.y*root[6]+v.z*root[10]};};
     Vec3 view=world(local),origin{eye[0],eye[1],eye[2]};
     if(!finite(view)||!finite(origin)||std::abs(length(view)-1)>.05){report(2);return;}
-    auto ahead=origin+view*50;float point[]{static_cast<float>(ahead.x),static_cast<float>(ahead.y),static_cast<float>(ahead.z)};
-    auto clip=transform(projection,point);
-    float error=clip[3]>.01f?std::hypot(clip[0]/clip[3],clip[1]/clip[3]):100.f;
-    if(!std::isfinite(error)||error>.05f){report(riding?3:6,0,error);return;}
+    // Screen-space distance magnifies camera bob with scope zoom and aspect
+    // ratio. Validate the actual camera orientation and proximity instead.
+    // Keep a conservative 3-degree limit; do not relax the pose-race checks.
+    auto rendered=camera::cameraPose(projection);
+    if(!rendered||length(rendered->eye-origin)>3){report(6,0,180);return;}
+    const float error=float(camera::alignmentDegrees(view,rendered->forward).value_or(180));
+    if(error>3){report(riding?3:6,0,error);return;}
     Shot shot;shot.muzzle=origin;
     AimSettings effective=settings;
     // The verified handheld look path is also usable in a vehicle when its

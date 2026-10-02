@@ -1,3 +1,4 @@
+#include "fc5/camera.hpp"
 #include "fc5/targeting.hpp"
 #include <cmath>
 #include <iostream>
@@ -150,6 +151,15 @@ int main() try {
     check(direct&&direct->flightSeconds==0,"unrecognized weapon uses direct aim instead of stopping");
     check(!fallback.travelTime&&vectorAim.travelTime,"fallback does not erase requested ballistic settings");
     check(weaponAimSettings(vectorAim,true).travelTime,"recognized weapon retains projectile compensation");
+    for(float aspect:{4.f/3,16.f/9,21.f/9})for(float zoom:{1.f,2.f,4.f,8.f}) {
+        std::array<float,16> projection{zoom/aspect,0,0,0, 0,0,1,1, 0,zoom,0,0, 0,0,-.1f,0};
+        const auto pose=camera::cameraPose(projection);
+        const double tilt=2*std::numbers::pi/180;
+        check(pose.has_value(),"FC5 perspective camera remains valid across scope and aspect changes");
+        const auto angle=camera::alignmentDegrees({std::sin(tilt),std::cos(tilt),0},pose->forward);
+        check(angle&&std::abs(*angle-2)<1e-5,"FC5 aim alignment is two degrees at every zoom/aspect");
+        check(camera::alignmentDegrees({1,0,0},pose->forward).value_or(0)>3,"FC5 rejects unrelated camera orientation");
+    }
     std::cout<<"All targeting checks passed.\n";
     return 0;
 } catch(const std::exception& e) { std::cerr<<e.what()<<'\n';return 1; }

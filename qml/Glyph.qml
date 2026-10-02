@@ -26,6 +26,15 @@ Canvas {
         case "logo":
             line([[2,4],[6,20],[12,9],[18,20],[22,4]],false)
             line([[5,4],[7,13],[12,4],[17,13],[19,4]],false); break
+        case "brush": line([[4,19],[15,3],[20,7],[9,21],[3,22]],true); line([[11,8],[16,12]],false); break;
+        case "palette": circle(12,12,9); circle(7,8,1); circle(12,5,1); circle(17,9,1); circle(8,15,1); break;
+        case "layout": line([[3,3],[10,3],[10,10],[3,10]],true); line([[14,3],[21,3],[21,10],[14,10]],true); line([[3,14],[10,14],[10,21],[3,21]],true); line([[14,14],[21,14],[21,21],[14,21]],true); break;
+        case "image": line([[3,3],[21,3],[21,21],[3,21]],true); circle(8,8,2); line([[3,18],[10,12],[14,16],[18,11],[21,15]],false); break;
+        case "motion": circle(12,12,7); line([[12,1],[12,5]],false); line([[12,19],[12,23]],false); line([[1,12],[5,12]],false); line([[19,12],[23,12]],false); line([[9,12],[12,8],[15,12]],false); break;
+        case "font": line([[3,21],[12,3],[21,21]],false); line([[7,14],[17,14]],false); break;
+        case "sound": line([[3,9],[7,9],[13,4],[13,20],[7,15],[3,15]],true); c.beginPath(); c.arc(13,12,6,-0.8,0.8);c.stroke();c.beginPath();c.arc(13,12,10,-0.8,0.8);c.stroke(); break;
+        case "bell": c.beginPath();c.moveTo(5,17);c.lineTo(5,10);c.bezierCurveTo(5,1,19,1,19,10);c.lineTo(19,17);c.closePath();c.stroke();circle(12,20,2); break;
+        case "cursor": line([[5,2],[20,15],[13,16],[10,22],[5,2]],false); break;
         case "home": line([[2,11],[12,3],[22,11]],false); line([[5,10],[5,21],[10,21],[10,15],[14,15],[14,21],[19,21],[19,10]],false); break
         case "aim": circle(12,12,7); circle(12,12,2); line([[12,1],[12,6]],false); line([[12,18],[12,23]],false); line([[1,12],[6,12]],false); line([[18,12],[23,12]],false); break
         case "eye":

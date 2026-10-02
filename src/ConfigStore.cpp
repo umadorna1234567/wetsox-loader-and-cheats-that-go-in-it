@@ -1,3 +1,4 @@
+#include "AppPaths.h"
 #include "ConfigStore.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -7,7 +8,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QSaveFile>
-ConfigStore::ConfigStore(QObject* p):ConfigStore(qEnvironmentVariableIsSet("WETSOX_CONFIG_ROOT")?qEnvironmentVariable("WETSOX_CONFIG_ROOT"):QCoreApplication::applicationDirPath()+"/configs",p){}
+ConfigStore::ConfigStore(QObject* p):ConfigStore(qEnvironmentVariableIsSet("WETSOX_CONFIG_ROOT")?qEnvironmentVariable("WETSOX_CONFIG_ROOT"):wetsoxRoot()+"/configs",p){}
 ConfigStore::ConfigStore(const QString& root,QObject* p):QObject(p),root_(QDir(root).absolutePath()){}
 bool ConfigStore::fail(const QString& e){error_=e;emit changed();return false;}
 QString ConfigStore::path(const QString& game,const QString& name,bool internal)const {

@@ -10,6 +10,11 @@
 
 int main(int argc, char *argv[])
 {
+#if QT_VERSION == QT_VERSION_CHECK(6, 8, 3)
+    // The 6.8.3 JIT path crashes during repeated theme/model changes in KF2 UI tests.
+    // Interpreter mode passes the same regression while retaining normal UI rendering.
+    qputenv("QV4_FORCE_INTERPRETER", "1");
+#endif
     QGuiApplication app(argc, argv);
     app.setOrganizationName("Wetsox");
     app.setApplicationName("Wetsox");
@@ -25,7 +30,7 @@ int main(int argc, char *argv[])
                      [&qmlFailed](const QList<QQmlError> &) { qmlFailed = true; });
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
-    if (smoke) engine.load(QUrl("qrc:/testing/tests/Smoke.qml"));
+    if (smoke) engine.load(QUrl(app.arguments().contains("--reference-preview") ? "qrc:/testing/tests/ReferencePreview.qml" : app.arguments().contains("--appearance-smoke") ? "qrc:/testing/tests/AppearanceSmoke.qml" : "qrc:/testing/tests/Smoke.qml"));
     else engine.loadFromModule("Nexus", "Main");
     const int captureIndex = app.arguments().indexOf("--screenshots");
     if (smoke && captureIndex >= 0 && captureIndex + 1 < app.arguments().size()) {

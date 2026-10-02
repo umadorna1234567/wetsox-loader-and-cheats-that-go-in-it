@@ -1,0 +1,419 @@
+{
+  "formatVersion": 1,
+  "id": "killingfloor2",
+  "name": "Killing Floor 2",
+  "subtitle": "Solo / local play",
+  "backend": "killingfloor2",
+  "module": "WetsoxKF2.dll",
+  "artwork": "cover.jpg",
+  "sections": [
+    {
+      "name": "Zed ESP",
+      "icon": "eye",
+      "controls": [
+        {
+          "key": "zedEsp",
+          "label": "Enable Zed ESP",
+          "defaultValue": false
+        },
+        {
+          "key": "zedSkeleton",
+          "label": "Skeleton ESP",
+          "defaultValue": true
+        },
+        {
+          "key": "zedSkeletonColor",
+          "label": "Skeleton color",
+          "type": "color",
+          "defaultValue": "#ff595e"
+        },
+        {
+          "key": "zedOutline",
+          "label": "Silhouette outline",
+          "defaultValue": false
+        },
+        {
+          "key": "zedOutlineColor",
+          "label": "Outline color",
+          "type": "color",
+          "defaultValue": "#ff595e"
+        },
+        {
+          "key": "zedHealth",
+          "label": "Health bars",
+          "defaultValue": true
+        },
+        {
+          "key": "zedHealthPosition",
+          "label": "Health bar position",
+          "type": "choice",
+          "defaultValue": "Top",
+          "options": [
+            "Left",
+            "Right",
+            "Top",
+            "Bottom"
+          ]
+        },
+        {
+          "key": "zedGradient",
+          "label": "Health gradient",
+          "defaultValue": true
+        },
+        {
+          "key": "zedHealthColor",
+          "label": "Health bar color",
+          "type": "color",
+          "defaultValue": "#5ae692"
+        },
+        {
+          "key": "zedHealthLow",
+          "label": "Low health color",
+          "type": "color",
+          "defaultValue": "#ff595e"
+        },
+        {
+          "key": "zedHealthHigh",
+          "label": "Full health color",
+          "type": "color",
+          "defaultValue": "#5ae692"
+        },
+        {
+          "key": "zedSnaplines",
+          "label": "Snaplines",
+          "defaultValue": false
+        },
+        {
+          "key": "zedLineOrigin",
+          "label": "Snapline origin",
+          "type": "choice",
+          "defaultValue": "Bottom",
+          "options": [
+            "Top",
+            "Middle",
+            "Bottom"
+          ]
+        },
+        {
+          "key": "zedLineColor",
+          "label": "Snapline color",
+          "type": "color",
+          "defaultValue": "#ff595e"
+        }
+      ]
+    },
+    {
+      "name": "Player ESP",
+      "icon": "eye",
+      "controls": [
+        {
+          "key": "playerEsp",
+          "label": "Enable Player ESP",
+          "defaultValue": false
+        },
+        {
+          "key": "playerSkeleton",
+          "label": "Skeleton ESP",
+          "defaultValue": true
+        },
+        {
+          "key": "playerSkeletonColor",
+          "label": "Skeleton color",
+          "type": "color",
+          "defaultValue": "#50b4ff"
+        },
+        {
+          "key": "playerOutline",
+          "label": "Silhouette outline",
+          "defaultValue": false
+        },
+        {
+          "key": "playerOutlineColor",
+          "label": "Outline color",
+          "type": "color",
+          "defaultValue": "#50b4ff"
+        },
+        {
+          "key": "playerHealth",
+          "label": "Health bars",
+          "defaultValue": true
+        },
+        {
+          "key": "playerHealthPosition",
+          "label": "Health bar position",
+          "type": "choice",
+          "defaultValue": "Top",
+          "options": [
+            "Left",
+            "Right",
+            "Top",
+            "Bottom"
+          ]
+        },
+        {
+          "key": "playerGradient",
+          "label": "Health gradient",
+          "defaultValue": true
+        },
+        {
+          "key": "playerHealthColor",
+          "label": "Health bar color",
+          "type": "color",
+          "defaultValue": "#5ae692"
+        },
+        {
+          "key": "playerHealthLow",
+          "label": "Low health color",
+          "type": "color",
+          "defaultValue": "#ff595e"
+        },
+        {
+          "key": "playerHealthHigh",
+          "label": "Full health color",
+          "type": "color",
+          "defaultValue": "#5ae692"
+        },
+        {
+          "key": "playerSnaplines",
+          "label": "Snaplines",
+          "defaultValue": false
+        },
+        {
+          "key": "playerLineOrigin",
+          "label": "Snapline origin",
+          "type": "choice",
+          "defaultValue": "Bottom",
+          "options": [
+            "Top",
+            "Middle",
+            "Bottom"
+          ]
+        },
+        {
+          "key": "playerLineColor",
+          "label": "Snapline color",
+          "type": "color",
+          "defaultValue": "#50b4ff"
+        }
+      ]
+    },
+    {
+      "name": "Loot",
+      "icon": "world",
+      "controls": [
+        {
+          "key": "lootEsp",
+          "label": "Loot ESP",
+          "defaultValue": false
+        },
+        {
+          "key": "lootColor",
+          "label": "Loot color",
+          "type": "color",
+          "defaultValue": "#ffd166"
+        }
+      ]
+    },
+    {
+      "name": "Aimbot",
+      "icon": "aim",
+      "controls": [
+        {
+          "key": "aim",
+          "label": "Enable aimbot",
+          "defaultValue": false
+        },
+        {
+          "key": "silent",
+          "label": "Silent aim",
+          "defaultValue": false
+        },
+        {
+          "key": "smooth",
+          "label": "Smoothness",
+          "type": "slider",
+          "defaultValue": 0.12,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "unit": " s"
+        },
+        {
+          "key": "fov",
+          "label": "Aim FOV diameter",
+          "type": "slider",
+          "defaultValue": 30,
+          "min": 1,
+          "max": 360,
+          "step": 1,
+          "unit": "deg"
+        },
+        {
+          "key": "showFov",
+          "label": "Show aim FOV",
+          "defaultValue": false
+        },
+        {
+          "key": "fovColor",
+          "label": "Aim FOV color",
+          "type": "color",
+          "defaultValue": "#ae78ff"
+        },
+        {
+          "key": "priority",
+          "label": "Target priority",
+          "type": "choice",
+          "defaultValue": "Closest to crosshair",
+          "options": [
+            "Closest to crosshair",
+            "Closest to you",
+            "Both"
+          ]
+        },
+        {
+          "key": "visibility",
+          "label": "Visibility check",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "name": "Player",
+      "icon": "player",
+      "controls": [
+        {
+          "key": "god",
+          "label": "Infinite health",
+          "defaultValue": false
+        },
+        {
+          "key": "syringe",
+          "label": "Instant syringe recharge",
+          "defaultValue": false
+        },
+        {
+          "key": "carry",
+          "label": "No carry limit",
+          "defaultValue": false
+        },
+        {
+          "key": "doshAmount",
+          "label": "Dosh amount",
+          "type": "slider",
+          "defaultValue": 1000,
+          "min": 1,
+          "max": 100000,
+          "step": 100,
+          "unit": ""
+        },
+        {
+          "key": "addDosh",
+          "label": "Add dosh",
+          "type": "action"
+        }
+      ]
+    },
+    {
+      "name": "Weapons",
+      "icon": "weapon",
+      "controls": [
+        {
+          "key": "rapid",
+          "label": "Rapid fire",
+          "defaultValue": false
+        },
+        {
+          "key": "fireRate",
+          "label": "Fire-rate multiplier",
+          "type": "slider",
+          "defaultValue": 3,
+          "min": 1,
+          "max": 10,
+          "step": 0.1,
+          "unit": "x"
+        },
+        {
+          "key": "spread",
+          "label": "No spread",
+          "defaultValue": false
+        },
+        {
+          "key": "recoil",
+          "label": "No recoil",
+          "defaultValue": false
+        },
+        {
+          "key": "sway",
+          "label": "No sway",
+          "defaultValue": false
+        },
+        {
+          "key": "wallShots",
+          "label": "Shoot through walls",
+          "defaultValue": false
+        },
+        {
+          "key": "reload",
+          "label": "No reload",
+          "defaultValue": false
+        },
+        {
+          "key": "ammo",
+          "label": "Infinite ammo",
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "name": "Movement",
+      "icon": "world",
+      "controls": [
+        {
+          "key": "moveSpeed",
+          "label": "Override movement speed",
+          "defaultValue": false
+        },
+        {
+          "key": "moveMultiplier",
+          "label": "Movement speed",
+          "type": "slider",
+          "defaultValue": 1,
+          "min": 0.25,
+          "max": 10,
+          "step": 0.05,
+          "unit": "x"
+        },
+        {
+          "key": "noclip",
+          "label": "Noclip",
+          "defaultValue": false
+        },
+        {
+          "key": "noclipMultiplier",
+          "label": "Noclip speed",
+          "type": "slider",
+          "defaultValue": 1,
+          "min": 0.25,
+          "max": 10,
+          "step": 0.05,
+          "unit": "x"
+        },
+        {
+          "key": "playerFov",
+          "label": "Override camera FOV",
+          "defaultValue": false
+        },
+        {
+          "key": "playerDegrees",
+          "label": "Camera FOV",
+          "type": "slider",
+          "defaultValue": 90,
+          "min": 40,
+          "max": 140,
+          "step": 1,
+          "unit": "deg"
+        }
+      ]
+    }
+  ]
+}

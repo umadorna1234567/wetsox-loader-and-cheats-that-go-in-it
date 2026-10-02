@@ -1,5 +1,6 @@
 #include "fc5/overlay.hpp"
 #include "fc5/session.hpp"
+#include "fc5/controller.hpp"
 #include "fc5/targeting.hpp"
 #include "fc5/runtime.hpp"
 #include <d3d11.h>
@@ -70,7 +71,8 @@ void exchange() {
     if(!fresh) {settings=fc5::Settings{};menuActive=true;}
 }
 bool aimHeld() {
-    return aimVk && (GetAsyncKeyState(aimVk)&0x8000) &&
+    if(!aimVk)return true; // Activation has been evaluated by the loader.
+    return wetsox::inputHeld(aimVk) &&
         (!(aimModifiers&1)||(GetAsyncKeyState(VK_CONTROL)&0x8000)) &&
         (!(aimModifiers&2)||(GetAsyncKeyState(VK_SHIFT)&0x8000)) &&
         (!(aimModifiers&4)||(GetAsyncKeyState(VK_MENU)&0x8000)) &&

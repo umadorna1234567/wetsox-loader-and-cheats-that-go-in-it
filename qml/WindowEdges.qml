@@ -2,6 +2,7 @@ import QtQuick
 
 Item {
     id: root
+    objectName: "windowResizeEdges"
     required property var window
     anchors.fill: parent
     z: 100
